@@ -1,13 +1,19 @@
 ######
-FROM node:12.18.3-buster-slim AS builder
+FROM node:20.20.0-trixie-slim AS builder
 ENV ROOT=/code
 WORKDIR $ROOT
+# Update npm to fix CVE-2026-0775
+RUN npm install -g npm@11.9.0 && \
+    npm cache clean --force && \
+    rm -rf /root/.npm
 COPY ui $ROOT
-RUN npm install && \
-    npm run build
+RUN npm install --legacy-peer-deps && \
+    npm run build && \
+    npm cache clean --force && \
+    rm -rf /root/.npm
 
 ######
-FROM node:12.18.3-buster-slim
+FROM node:20.20.0-trixie-slim
 ARG BUILD_DATE
 ARG VERSION
 ARG VCS_REF
@@ -21,6 +27,11 @@ LABEL org.label-schema.build-date=${BUILD_DATE} \
     org.label-schema.vcs-type="Git" \
     org.label-schema.vcs-url="https://github.com/fescobar/allure-docker-service-ui" \
     authors="Frank Escobar <fescobar.systems@gmail.com>"
+
+# Update npm to fix CVE-2026-0775
+RUN npm install -g npm@11.9.0 && \
+    npm cache clean --force && \
+    rm -rf /root/.npm
 
 RUN apt-get update && \
     apt install curl -y
@@ -36,7 +47,9 @@ COPY --chown=node:node ui/generate_env_file.sh $ROOT
 RUN echo "${VERSION}" > $ROOT/ui/ui_version && \
     echo "ALLURE_DOCKER_SERVICE_UI_VERSION:" $(cat $ROOT/ui/ui_version) && \
     chmod +x $ROOT/*.sh && \
-    npm install --prefix $ROOT/ui
+    npm install --prefix $ROOT/ui && \
+    npm cache clean --force && \
+    rm -rf /root/.npm
 
 RUN chown -R node:node $ROOT
 

@@ -2,8 +2,14 @@
     "name": "allure-docker-service-ui-server",
     "version": "0.1.0",
     "private": true,
+    "overrides": {
+      "brace-expansion": "^2.0.2",
+      "cross-spawn": "^7.0.5",
+      "diff": "^8.0.3",
+      "glob": "^11.1.0",
+      "tar": "^7.5.7"
+    },
     "dependencies": {
-      "express": "4.17.1"
+      "express": "4.22.1"
     }
   }
-  
